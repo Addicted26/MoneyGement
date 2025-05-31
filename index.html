@@ -53,11 +53,18 @@
             </select>
           </div>
           <div>
-            <label for="edit-kategori">Kategori:</label>
+            <label for="edit-kategori-select">Kategori:</label>
+            <select id="edit-kategori-select">
+              <option value="">-- Pilih Kategori --</option>
+              <!-- Opsi diisi JS -->
+              <option value="add_new_category">Tambah Kategori Baru...</option>
+            </select>
             <input
               type="text"
-              id="edit-kategori"
-              placeholder="Contoh: Makanan, Gaji"
+              id="edit-kategori-baru"
+              class="input-kategori-baru"
+              placeholder="Nama Kategori Baru"
+              style="display: none; margin-top: 5px"
             />
           </div>
           <div>
@@ -153,8 +160,13 @@
               </div>
               <small id="limit-warning" class="warning-text"></small>
             </div>
+
+            <!-- Kartu Progres Menabung Dimodifikasi -->
             <div class="card">
-              <h4><i class="fas fa-piggy-bank"></i> Progres Menabung</h4>
+              <h4>
+                <i class="fas fa-piggy-bank"></i>
+                <span id="judul-target-nabung-dashboard">Progres Menabung</span>
+              </h4>
               <p>Target: <span id="target-nabung-info">Belum diatur</span></p>
               <p>Terkumpul: <span id="nabung-terkumpul">Rp 0</span></p>
               <div class="progress-bar-container">
@@ -165,11 +177,43 @@
               <p class="info-text">
                 Rekomendasi/bln: <span id="rekomendasi-nabung">Rp 0</span>
               </p>
+              <div class="manual-saving-input mt-15">
+                <!-- mt-15 untuk margin top -->
+                <input
+                  type="number"
+                  id="manual-saving-amount"
+                  placeholder="Jumlah (Rp)"
+                  min="1"
+                />
+                <div class="saving-actions">
+                  <button id="add-to-savings-btn" class="btn-success btn-sm">
+                    <i class="fas fa-plus"></i> Tambah
+                  </button>
+                  <button
+                    id="subtract-from-savings-btn"
+                    class="btn-warning btn-sm"
+                  >
+                    <i class="fas fa-minus"></i> Kurangi
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="dashboard-anggaran-preview card">
             <h3><i class="fas fa-tasks"></i> Ringkasan Anggaran Bulan Ini</h3>
             <ul id="list-anggaran-dashboard">
+              <!-- Struktur baru untuk setiap item anggaran: -->
+              <!-- <li>
+                            <div class="anggaran-item-info">
+                                <span class="anggaran-category">Nama Kategori</span>
+                                <span class="anggaran-amounts">Rp Terpakai / Rp Budget</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar [danger/warning]" style="width: ...%;">
+                                    <span class="progress-text">...%</span>
+                                </div>
+                            </div>
+                        </li> -->
               <li>Belum ada anggaran yang diatur.</li>
             </ul>
             <a href="#" class="nav-link view-all-btn" data-target="anggaran"
@@ -228,11 +272,19 @@
                   </select>
                 </div>
                 <div>
-                  <label for="kategori">Kategori:</label>
+                  <label for="kategori-select">Kategori:</label>
+                  <select id="kategori-select">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="add_new_category">
+                      Tambah Kategori Baru...
+                    </option>
+                  </select>
                   <input
                     type="text"
-                    id="kategori"
-                    placeholder="Contoh: Gaji, Makanan, Transportasi, Tabungan"
+                    id="input-kategori-baru"
+                    class="input-kategori-baru"
+                    placeholder="Nama Kategori Baru"
+                    style="display: none; margin-top: 5px"
                   />
                 </div>
                 <div>
@@ -274,12 +326,19 @@
               <h3><i class="fas fa-plus-circle"></i> Tambah/Edit Anggaran</h3>
               <form id="form-anggaran">
                 <div>
-                  <label for="anggaran-kategori">Kategori:</label>
+                  <label for="anggaran-kategori-select">Kategori:</label>
+                  <select id="anggaran-kategori-select">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="add_new_category">
+                      Tambah Kategori Baru...
+                    </option>
+                  </select>
                   <input
                     type="text"
-                    id="anggaran-kategori"
-                    placeholder="Contoh: Makanan, Transportasi"
-                    required
+                    id="input-anggaran-kategori-baru"
+                    class="input-kategori-baru"
+                    placeholder="Nama Kategori Baru"
+                    style="display: none; margin-top: 5px"
                   />
                 </div>
                 <div>
@@ -318,7 +377,7 @@
           </div>
         </section>
 
-        <!-- Bagian Saran Budgeting -->
+        <!-- Bagian Saran Budgeting (Konten sama seperti sebelumnya) -->
         <section id="saran-budget" class="page-section">
           <header class="page-header">
             <h1><i class="fas fa-lightbulb"></i> Saran Metode Budgeting</h1>
@@ -341,7 +400,9 @@
                 gambaran jelas antara kebutuhan dan keinginan.
               </p>
               <details class="saran-details">
-                <summary>Baca Selengkapnya</summary>
+                <summary>
+                  Baca Selengkapnya <i class="fas fa-chevron-down"></i>
+                </summary>
                 <p>
                   <strong>Kelebihan:</strong> Mudah dipahami dan
                   diimplementasikan, memberikan keseimbangan antara pengeluaran
@@ -369,7 +430,6 @@
                 </p>
               </details>
             </article>
-
             <article class="saran-item card">
               <h3>Zero-Based Budgeting (Anggaran Berbasis Nol)</h3>
               <p>
@@ -384,7 +444,9 @@
                 impulsif.
               </p>
               <details class="saran-details">
-                <summary>Baca Selengkapnya</summary>
+                <summary>
+                  Baca Selengkapnya <i class="fas fa-chevron-down"></i>
+                </summary>
                 <p>
                   <strong>Kelebihan:</strong> Memberikan kesadaran penuh atas
                   pengeluaran, membantu mengidentifikasi pemborosan, memaksa
@@ -410,7 +472,6 @@
                 </p>
               </details>
             </article>
-
             <article class="saran-item card">
               <h3>Pay Yourself First (Bayar Diri Sendiri Dulu)</h3>
               <p>
@@ -424,7 +485,9 @@
                 menabung. Fokus utama adalah membangun kekayaan.
               </p>
               <details class="saran-details">
-                <summary>Baca Selengkapnya</summary>
+                <summary>
+                  Baca Selengkapnya <i class="fas fa-chevron-down"></i>
+                </summary>
                 <p>
                   <strong>Kelebihan:</strong> Memastikan tabungan dan investasi
                   menjadi prioritas, membangun kebiasaan menabung otomatis,
@@ -448,7 +511,6 @@
                 </p>
               </details>
             </article>
-
             <article class="saran-item card">
               <h3>Envelope System (Sistem Amplop)</h3>
               <p>
@@ -464,7 +526,9 @@
                 visual dan konkret.
               </p>
               <details class="saran-details">
-                <summary>Baca Selengkapnya</summary>
+                <summary>
+                  Baca Selengkapnya <i class="fas fa-chevron-down"></i>
+                </summary>
                 <p>
                   <strong>Kelebihan:</strong> Sangat efektif mengontrol
                   pengeluaran berlebih, visual dan mudah dipahami, membantu
@@ -490,7 +554,6 @@
                 </p>
               </details>
             </article>
-
             <article class="saran-item card">
               <h3>Value-Based Spending (Pengeluaran Berbasis Nilai)</h3>
               <p>
@@ -505,7 +568,9 @@
                 diri yang baik.
               </p>
               <details class="saran-details">
-                <summary>Baca Selengkapnya</summary>
+                <summary>
+                  Baca Selengkapnya <i class="fas fa-chevron-down"></i>
+                </summary>
                 <p>
                   <strong>Kelebihan:</strong> Lebih personal dan memuaskan,
                   mengurangi rasa "bersalah" saat belanja untuk hal yang penting
@@ -527,6 +592,50 @@
                   belanja baju agar bisa menabung lebih banyak untuk liburan
                   tahunannya. Dia juga berinvestasi pada kursus online yang
                   mendukung karirnya karena itu bernilai baginya.
+                </p>
+              </details>
+            </article>
+            <article class="saran-item card">
+              <h3>Kakeibo (Buku Catatan Keuangan Rumah Tangga Jepang)</h3>
+              <p>
+                <strong>Deskripsi:</strong> Metode tradisional Jepang yang fokus
+                pada pencatatan pengeluaran secara manual dan refleksi mendalam
+                terhadap kebiasaan belanja. Tujuannya adalah meningkatkan
+                kesadaran finansial dan mendorong penghematan.
+              </p>
+              <p>
+                <strong>Kapan Memilih:</strong> Jika Anda menyukai pendekatan
+                yang lebih mindful, reflektif, dan tidak terlalu bergantung pada
+                teknologi. Cocok jika Anda ingin memahami "mengapa" Anda
+                belanja, bukan hanya "apa".
+              </p>
+              <details class="saran-details">
+                <summary>
+                  Baca Selengkapnya <i class="fas fa-chevron-down"></i>
+                </summary>
+                <p>
+                  <strong>Kelebihan:</strong> Meningkatkan kesadaran finansial
+                  secara signifikan, membantu mengidentifikasi pola pengeluaran
+                  emosional, mendorong penghematan yang disengaja.
+                </p>
+                <p>
+                  <strong>Kekurangan:</strong> Membutuhkan pencatatan manual
+                  yang konsisten (bisa di buku atau spreadsheet), mungkin kurang
+                  praktis bagi sebagian orang, tidak memberikan persentase
+                  alokasi yang kaku.
+                </p>
+                <p>
+                  <strong>Cocok untuk Gaji:</strong> Semua range gaji, karena
+                  fokusnya pada kesadaran dan penghematan, bukan alokasi
+                  persentase.
+                </p>
+                <p>
+                  <strong>Studi Kasus:</strong> Setiap akhir hari, Rina mencatat
+                  semua pengeluarannya di buku Kakeibo. Di akhir minggu, ia
+                  mereview dan bertanya pada dirinya sendiri: "Berapa banyak
+                  uang yang saya miliki?", "Berapa banyak yang ingin saya
+                  tabung?", "Berapa banyak yang saya belanjakan?", "Bagaimana
+                  saya bisa lebih baik?".
                 </p>
               </details>
             </article>
@@ -599,6 +708,14 @@
             <div class="card pengaturan-item">
               <h3><i class="fas fa-piggy-bank"></i> Target Menabung</h3>
               <form id="form-target-nabung">
+                <div>
+                  <label for="target-nabung-judul">Judul Target:</label>
+                  <input
+                    type="text"
+                    id="target-nabung-judul"
+                    placeholder="Contoh: Dana Darurat, Liburan"
+                  />
+                </div>
                 <div>
                   <label for="target-nabung-nominal">Jumlah Target (Rp):</label>
                   <input
