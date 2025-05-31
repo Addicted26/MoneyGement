@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoneyGement - Manajer Keuangan Cerdas</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Font Awesome untuk Ikon -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Area Notifikasi -->
+    <div id="notification-area"></div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div id="confirm-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal-btn">×</span>
+        <h3 id="modal-title">Konfirmasi Tindakan</h3>
+        <p id="modal-message">Apakah Anda yakin?</p>
+        <div class="modal-actions">
+          <button id="modal-confirm-btn" class="btn-danger">
+            Ya, Lanjutkan
+          </button>
+          <button id="modal-cancel-btn" class="btn-secondary">Batal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Transaksi -->
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-edit-modal-btn">×</span>
+        <h3>Edit Transaksi</h3>
+        <form id="form-edit-transaksi">
+          <input type="hidden" id="edit-transaksi-id" />
+          <div>
+            <label for="edit-deskripsi">Deskripsi:</label>
+            <input type="text" id="edit-deskripsi" required />
+          </div>
+          <div>
+            <label for="edit-nominal">Nominal (Rp):</label>
+            <input type="number" id="edit-nominal" required min="1" />
+          </div>
+          <div>
+            <label for="edit-jenis-transaksi">Jenis Transaksi:</label>
+            <select id="edit-jenis-transaksi">
+              <option value="pemasukan">Pemasukan</option>
+              <option value="pengeluaran">Pengeluaran</option>
+            </select>
+          </div>
+          <div>
+            <label for="edit-kategori">Kategori:</label>
+            <input
+              type="text"
+              id="edit-kategori"
+              placeholder="Contoh: Makanan, Gaji"
+            />
+          </div>
+          <div>
+            <label for="edit-tanggal-transaksi">Tanggal:</label>
+            <input type="date" id="edit-tanggal-transaksi" required />
+          </div>
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-save"></i> Simpan Perubahan
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Kontainer Aplikasi Utama -->
+    <div class="app-container">
+      <!-- Sidebar Navigasi -->
+      <nav class="sidebar">
+        <div class="sidebar-header">
+          <i class="fas fa-wallet"></i>
+          <h2 class="sidebar-title-text">MoneyGement</h2>
+        </div>
+        <ul>
+          <li>
+            <a href="#" class="nav-link active" data-target="dashboard"
+              ><i class="fas fa-tachometer-alt"></i>
+              <span class="nav-text">Dashboard</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-target="transaksi"
+              ><i class="fas fa-exchange-alt"></i>
+              <span class="nav-text">Transaksi</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-target="anggaran"
+              ><i class="fas fa-tasks"></i>
+              <span class="nav-text">Anggaran</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-target="saran-budget"
+              ><i class="fas fa-lightbulb"></i>
+              <span class="nav-text">Saran Budget</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-target="statistik"
+              ><i class="fas fa-chart-pie"></i>
+              <span class="nav-text">Statistik</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-target="pengaturan"
+              ><i class="fas fa-cog"></i>
+              <span class="nav-text">Pengaturan</span></a
+            >
+          </li>
+        </ul>
+        <div class="sidebar-footer">
+          <p>
+            © <span id="tahun-footer">2023</span>
+            <span class="sidebar-title-text">MoneyGement</span>
+          </p>
+        </div>
+      </nav>
+
+      <!-- Konten Utama -->
+      <main class="content">
+        <!-- Bagian Dashboard -->
+        <section id="dashboard" class="page-section active">
+          <header class="page-header">
+            <h1>Dashboard Keuangan</h1>
+          </header>
+          <div class="dashboard-grid">
+            <div class="card saldo-card">
+              <h3><i class="fas fa-wallet"></i> Sisa Saldo</h3>
+              <p id="sisa-saldo" class="saldo-amount">Rp 0</p>
+            </div>
+            <div class="card">
+              <h4>
+                <i class="fas fa-exclamation-triangle"></i> Limit Pengeluaran
+                Bln Ini
+              </h4>
+              <p>
+                Limit: <span id="limit-pengeluaran-info">Belum diatur</span>
+              </p>
+              <p>Terpakai: <span id="pengeluaran-bulan-ini">Rp 0</span></p>
+              <div class="progress-bar-container">
+                <div id="limit-progress-bar" class="progress-bar">
+                  <span class="progress-text">0%</span>
+                </div>
+              </div>
+              <small id="limit-warning" class="warning-text"></small>
+            </div>
+            <div class="card">
+              <h4><i class="fas fa-piggy-bank"></i> Progres Menabung</h4>
+              <p>Target: <span id="target-nabung-info">Belum diatur</span></p>
+              <p>Terkumpul: <span id="nabung-terkumpul">Rp 0</span></p>
+              <div class="progress-bar-container">
+                <div id="nabung-progress-bar" class="progress-bar">
+                  <span class="progress-text">0%</span>
+                </div>
+              </div>
+              <p class="info-text">
+                Rekomendasi/bln: <span id="rekomendasi-nabung">Rp 0</span>
+              </p>
+            </div>
+          </div>
+          <div class="dashboard-anggaran-preview card">
+            <h3><i class="fas fa-tasks"></i> Ringkasan Anggaran Bulan Ini</h3>
+            <ul id="list-anggaran-dashboard">
+              <li>Belum ada anggaran yang diatur.</li>
+            </ul>
+            <a href="#" class="nav-link view-all-btn" data-target="anggaran"
+              >Kelola Anggaran <i class="fas fa-arrow-right"></i
+            ></a>
+          </div>
+          <div class="recent-transactions-preview card">
+            <h3><i class="fas fa-history"></i> Transaksi Terbaru</h3>
+            <ul id="list-transaksi-dashboard">
+              <li>Tidak ada transaksi terbaru.</li>
+            </ul>
+            <a href="#" class="nav-link view-all-btn" data-target="transaksi"
+              >Lihat Semua Transaksi <i class="fas fa-arrow-right"></i
+            ></a>
+          </div>
+        </section>
+
+        <!-- Bagian Transaksi -->
+        <section id="transaksi" class="page-section">
+          <header class="page-header">
+            <h1>Manajemen Transaksi</h1>
+          </header>
+          <div class="transaksi-actions">
+            <button id="export-csv-btn" class="btn-secondary">
+              <i class="fas fa-file-csv"></i> Ekspor ke CSV
+            </button>
+          </div>
+          <div class="transaksi-layout">
+            <div class="form-container card">
+              <h3><i class="fas fa-plus-circle"></i> Tambah Transaksi Baru</h3>
+              <form id="form-transaksi">
+                <div>
+                  <label for="deskripsi">Deskripsi:</label>
+                  <input
+                    type="text"
+                    id="deskripsi"
+                    placeholder="Contoh: Gaji bulanan"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="nominal">Nominal (Rp):</label>
+                  <input
+                    type="number"
+                    id="nominal"
+                    placeholder="Contoh: 50000"
+                    required
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <label for="jenis-transaksi">Jenis Transaksi:</label>
+                  <select id="jenis-transaksi">
+                    <option value="pemasukan">Pemasukan</option>
+                    <option value="pengeluaran">Pengeluaran</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="kategori">Kategori:</label>
+                  <input
+                    type="text"
+                    id="kategori"
+                    placeholder="Contoh: Gaji, Makanan, Transportasi, Tabungan"
+                  />
+                </div>
+                <div>
+                  <label for="tanggal-transaksi">Tanggal:</label>
+                  <input type="date" id="tanggal-transaksi" required />
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-save"></i> Simpan Transaksi
+                </button>
+              </form>
+            </div>
+            <div class="riwayat-container card">
+              <h3><i class="fas fa-list-ul"></i> Riwayat Transaksi</h3>
+              <div class="filter-riwayat">
+                <select id="filter-bulan">
+                  <option value="">Semua Bulan</option>
+                </select>
+                <select id="filter-tahun">
+                  <option value="">Semua Tahun</option>
+                </select>
+                <button id="reset-filter" class="btn-secondary">
+                  <i class="fas fa-sync-alt"></i> Reset Filter
+                </button>
+              </div>
+              <ul id="list-item-transaksi">
+                <li>Tidak ada transaksi untuk ditampilkan.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bagian Anggaran -->
+        <section id="anggaran" class="page-section">
+          <header class="page-header">
+            <h1>Kelola Anggaran Kategori</h1>
+          </header>
+          <div class="anggaran-layout">
+            <div class="form-anggaran-container card">
+              <h3><i class="fas fa-plus-circle"></i> Tambah/Edit Anggaran</h3>
+              <form id="form-anggaran">
+                <div>
+                  <label for="anggaran-kategori">Kategori:</label>
+                  <input
+                    type="text"
+                    id="anggaran-kategori"
+                    placeholder="Contoh: Makanan, Transportasi"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="anggaran-nominal"
+                    >Nominal Anggaran Bulanan (Rp):</label
+                  >
+                  <input
+                    type="number"
+                    id="anggaran-nominal"
+                    placeholder="Contoh: 500000"
+                    required
+                    min="0"
+                  />
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-save"></i> Simpan Anggaran
+                </button>
+              </form>
+            </div>
+            <div class="daftar-anggaran-container card">
+              <h3>
+                <i class="fas fa-clipboard-list"></i> Daftar Anggaran Saat Ini
+              </h3>
+              <ul id="list-item-anggaran">
+                <li>Belum ada anggaran yang diatur.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card mt-20">
+            <h3><i class="fas fa-chart-bar"></i> Progres Anggaran Bulan Ini</h3>
+            <div id="progres-anggaran-container">
+              <p class="info-text">
+                Atur anggaran untuk melihat progresnya di sini.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bagian Saran Budgeting -->
+        <section id="saran-budget" class="page-section">
+          <header class="page-header">
+            <h1><i class="fas fa-lightbulb"></i> Saran Metode Budgeting</h1>
+            <p class="page-subtitle">
+              Temukan metode budgeting yang paling sesuai dengan gaya hidup dan
+              tujuan keuangan Anda.
+            </p>
+          </header>
+          <div class="saran-container">
+            <article class="saran-item card">
+              <h3>Metode 50/30/20</h3>
+              <p>
+                <strong>Deskripsi:</strong> Alokasikan 50% pendapatan untuk
+                Kebutuhan (Needs), 30% untuk Keinginan (Wants), dan 20% untuk
+                Tabungan & Pembayaran Utang (Savings & Debt).
+              </p>
+              <p>
+                <strong>Kapan Memilih:</strong> Cocok untuk pemula yang ingin
+                struktur sederhana namun fleksibel. Baik jika Anda memiliki
+                gambaran jelas antara kebutuhan dan keinginan.
+              </p>
+              <details class="saran-details">
+                <summary>Baca Selengkapnya</summary>
+                <p>
+                  <strong>Kelebihan:</strong> Mudah dipahami dan
+                  diimplementasikan, memberikan keseimbangan antara pengeluaran
+                  saat ini dan tujuan masa depan, fleksibel dalam kategori
+                  keinginan.
+                </p>
+                <p>
+                  <strong>Kekurangan:</strong> Pembagian persentase mungkin
+                  tidak cocok untuk semua tingkat pendapatan (terutama
+                  pendapatan rendah atau sangat tinggi), bisa jadi sulit
+                  membedakan antara kebutuhan dan keinginan secara tegas.
+                </p>
+                <p>
+                  <strong>Cocok untuk Gaji:</strong> Range menengah (misal, Rp
+                  5jt - Rp 20jt/bulan). Untuk gaji lebih rendah, porsi kebutuhan
+                  mungkin lebih dari 50%. Untuk gaji lebih tinggi, porsi
+                  tabungan bisa lebih besar dari 20%.
+                </p>
+                <p>
+                  <strong>Studi Kasus:</strong> Ani bergaji Rp 10jt/bulan. Dia
+                  mengalokasikan Rp 5jt untuk sewa, makanan, transportasi
+                  (Kebutuhan). Rp 3jt untuk hiburan, makan di luar, belanja
+                  (Keinginan). Rp 2jt untuk tabungan darurat dan investasi
+                  (Tabungan).
+                </p>
+              </details>
+            </article>
+
+            <article class="saran-item card">
+              <h3>Zero-Based Budgeting (Anggaran Berbasis Nol)</h3>
+              <p>
+                <strong>Deskripsi:</strong> Setiap rupiah dari pendapatan Anda
+                dialokasikan ke suatu pos pengeluaran, tabungan, atau investasi
+                hingga selisih antara pendapatan dan pengeluaran adalah nol.
+              </p>
+              <p>
+                <strong>Kapan Memilih:</strong> Jika Anda ingin kontrol penuh
+                atas setiap rupiah, siap untuk detail, dan ingin memaksimalkan
+                setiap pendapatan. Efektif untuk mengurangi pengeluaran
+                impulsif.
+              </p>
+              <details class="saran-details">
+                <summary>Baca Selengkapnya</summary>
+                <p>
+                  <strong>Kelebihan:</strong> Memberikan kesadaran penuh atas
+                  pengeluaran, membantu mengidentifikasi pemborosan, memaksa
+                  Anda untuk proaktif dalam merencanakan keuangan.
+                </p>
+                <p>
+                  <strong>Kekurangan:</strong> Memakan waktu dan butuh
+                  kedisiplinan tinggi, bisa terasa kaku jika tidak disesuaikan,
+                  perlu review rutin setiap bulan karena pengeluaran bisa
+                  berubah.
+                </p>
+                <p>
+                  <strong>Cocok untuk Gaji:</strong> Semua range gaji, tetapi
+                  sangat bermanfaat jika Anda memiliki pendapatan tidak tetap
+                  atau ingin keluar dari utang dengan cepat.
+                </p>
+                <p>
+                  <strong>Studi Kasus:</strong> Budi menerima Rp 7jt. Dia
+                  mencatat: Sewa Rp 2jt, Makanan Rp 1.5jt, Transportasi Rp
+                  500rb, Utang Rp 1jt, Tabungan Rp 1jt, Hiburan Rp 500rb,
+                  Lain-lain Rp 500rb. Total pengeluaran = Rp 7jt. Tidak ada
+                  sisa.
+                </p>
+              </details>
+            </article>
+
+            <article class="saran-item card">
+              <h3>Pay Yourself First (Bayar Diri Sendiri Dulu)</h3>
+              <p>
+                <strong>Deskripsi:</strong> Prioritaskan menabung atau investasi
+                sejumlah tertentu dari pendapatan Anda segera setelah diterima,
+                sebelum membayar tagihan atau pengeluaran lainnya.
+              </p>
+              <p>
+                <strong>Kapan Memilih:</strong> Jika Anda kesulitan menabung
+                secara konsisten atau seringkali uang habis sebelum sempat
+                menabung. Fokus utama adalah membangun kekayaan.
+              </p>
+              <details class="saran-details">
+                <summary>Baca Selengkapnya</summary>
+                <p>
+                  <strong>Kelebihan:</strong> Memastikan tabungan dan investasi
+                  menjadi prioritas, membangun kebiasaan menabung otomatis,
+                  sederhana dan tidak rumit.
+                </p>
+                <p>
+                  <strong>Kekurangan:</strong> Mungkin tidak cukup untuk
+                  mengelola semua aspek keuangan jika tidak dikombinasikan
+                  dengan metode lain, bisa mengabaikan manajemen utang jika
+                  tidak hati-hati.
+                </p>
+                <p>
+                  <strong>Cocok untuk Gaji:</strong> Semua range gaji. Jumlah
+                  yang "dibayarkan" ke diri sendiri bisa berupa persentase
+                  (misal 10-20%) atau nominal tetap.
+                </p>
+                <p>
+                  <strong>Studi Kasus:</strong> Setiap tanggal gajian, Citra
+                  langsung mentransfer 15% dari gajinya ke rekening investasi.
+                  Sisa gajinya baru ia gunakan untuk kebutuhan dan keinginan.
+                </p>
+              </details>
+            </article>
+
+            <article class="saran-item card">
+              <h3>Envelope System (Sistem Amplop)</h3>
+              <p>
+                <strong>Deskripsi:</strong> Alokasikan uang tunai ke dalam
+                amplop-amplop fisik yang berbeda untuk setiap kategori
+                pengeluaran variabel (misal, makanan, hiburan, bensin). Setelah
+                uang di amplop habis, Anda tidak boleh belanja lagi untuk
+                kategori itu.
+              </p>
+              <p>
+                <strong>Kapan Memilih:</strong> Jika Anda cenderung boros dengan
+                kartu debit/kredit dan butuh batasan fisik yang jelas. Sangat
+                visual dan konkret.
+              </p>
+              <details class="saran-details">
+                <summary>Baca Selengkapnya</summary>
+                <p>
+                  <strong>Kelebihan:</strong> Sangat efektif mengontrol
+                  pengeluaran berlebih, visual dan mudah dipahami, membantu
+                  menghindari utang baru.
+                </p>
+                <p>
+                  <strong>Kekurangan:</strong> Kurang praktis untuk transaksi
+                  online atau pembayaran otomatis, membawa banyak uang tunai
+                  bisa berisiko, butuh penyesuaian untuk pengeluaran tak
+                  terduga.
+                </p>
+                <p>
+                  <strong>Cocok untuk Gaji:</strong> Lebih cocok untuk mereka
+                  yang sering bertransaksi tunai dan ingin disiplin pada
+                  kategori pengeluaran variabel.
+                </p>
+                <p>
+                  <strong>Studi Kasus:</strong> Doni menarik uang tunai Rp 2jt
+                  di awal bulan. Ia memasukkan Rp 800rb ke amplop "Makanan", Rp
+                  500rb ke "Hiburan", Rp 400rb ke "Bensin", dan Rp 300rb ke
+                  "Jajan". Jika amplop "Hiburan" habis di pertengahan bulan, ia
+                  tidak akan nonton bioskop lagi.
+                </p>
+              </details>
+            </article>
+
+            <article class="saran-item card">
+              <h3>Value-Based Spending (Pengeluaran Berbasis Nilai)</h3>
+              <p>
+                <strong>Deskripsi:</strong> Fokuskan pengeluaran Anda pada
+                hal-hal yang benar-benar memberi Anda nilai dan kebahagiaan,
+                sambil memotong pengeluaran pada hal-hal yang kurang penting.
+              </p>
+              <p>
+                <strong>Kapan Memilih:</strong> Jika Anda ingin keuangan selaras
+                dengan prioritas hidup Anda, tidak ingin merasa terlalu
+                terkekang oleh budget yang kaku, dan sudah memiliki kesadaran
+                diri yang baik.
+              </p>
+              <details class="saran-details">
+                <summary>Baca Selengkapnya</summary>
+                <p>
+                  <strong>Kelebihan:</strong> Lebih personal dan memuaskan,
+                  mengurangi rasa "bersalah" saat belanja untuk hal yang penting
+                  bagi Anda, mendorong pengeluaran yang sadar.
+                </p>
+                <p>
+                  <strong>Kekurangan:</strong> Membutuhkan introspeksi untuk
+                  menentukan nilai pribadi, bisa subjektif dan rentan terhadap
+                  justifikasi pengeluaran berlebih jika tidak hati-hati, perlu
+                  evaluasi berkala.
+                </p>
+                <p>
+                  <strong>Cocok untuk Gaji:</strong> Semua range gaji. Kuncinya
+                  adalah identifikasi nilai, bukan nominal absolut.
+                </p>
+                <p>
+                  <strong>Studi Kasus:</strong> Eka sangat menghargai pengalaman
+                  traveling. Dia rela mengurangi budget makan di luar dan
+                  belanja baju agar bisa menabung lebih banyak untuk liburan
+                  tahunannya. Dia juga berinvestasi pada kursus online yang
+                  mendukung karirnya karena itu bernilai baginya.
+                </p>
+              </details>
+            </article>
+          </div>
+        </section>
+
+        <!-- Bagian Statistik -->
+        <section id="statistik" class="page-section">
+          <header class="page-header">
+            <h1>Statistik Keuangan</h1>
+          </header>
+          <div class="statistik-filters card">
+            <div class="filter-group">
+              <h4>
+                <i class="fas fa-filter"></i> Filter Grafik Kategori Pengeluaran
+              </h4>
+              <select id="stats-kategori-bulan">
+                <option value="">Bulan Ini</option>
+              </select>
+              <select id="stats-kategori-tahun">
+                <option value="">Tahun Ini</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <h4>
+                <i class="fas fa-filter"></i> Filter Grafik Tren (12 Bulan)
+              </h4>
+              <select id="stats-tren-tahun">
+                <option value="">Tahun Ini</option>
+              </select>
+            </div>
+          </div>
+          <div class="statistik-grid">
+            <div class="card chart-container">
+              <h3><i class="fas fa-chart-pie"></i> Pengeluaran per Kategori</h3>
+              <canvas id="kategoriChart"></canvas>
+            </div>
+            <div class="card chart-container">
+              <h3>
+                <i class="fas fa-chart-line"></i> Tren Pemasukan & Pengeluaran
+              </h3>
+              <canvas id="trenChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bagian Pengaturan -->
+        <section id="pengaturan" class="page-section">
+          <header class="page-header">
+            <h1>Pengaturan Aplikasi</h1>
+          </header>
+          <div class="pengaturan-grid">
+            <div class="card pengaturan-item">
+              <h3><i class="fas fa-coins"></i> Limit Pengeluaran Bulanan</h3>
+              <form id="form-limit">
+                <div>
+                  <label for="limit-nominal">Total Limit (Rp):</label>
+                  <input
+                    type="number"
+                    id="limit-nominal"
+                    min="0"
+                    placeholder="Contoh: 2000000"
+                  />
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-check-circle"></i> Set Limit
+                </button>
+              </form>
+            </div>
+            <div class="card pengaturan-item">
+              <h3><i class="fas fa-piggy-bank"></i> Target Menabung</h3>
+              <form id="form-target-nabung">
+                <div>
+                  <label for="target-nabung-nominal">Jumlah Target (Rp):</label>
+                  <input
+                    type="number"
+                    id="target-nabung-nominal"
+                    min="0"
+                    placeholder="Contoh: 10000000"
+                  />
+                </div>
+                <div>
+                  <label for="target-nabung-tanggal"
+                    >Target Tercapai Pada Tanggal:</label
+                  >
+                  <input type="date" id="target-nabung-tanggal" />
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-check-circle"></i> Set Target
+                </button>
+              </form>
+            </div>
+            <div class="card pengaturan-item">
+              <h3><i class="fas fa-briefcase"></i> Pemasukan Rutin (Gaji)</h3>
+              <form id="form-gaji">
+                <div>
+                  <label for="gaji-deskripsi"
+                    >Deskripsi Pekerjaan/Sumber:</label
+                  >
+                  <input
+                    type="text"
+                    id="gaji-deskripsi"
+                    placeholder="Contoh: Gaji Pokok PT. ABC"
+                  />
+                </div>
+                <div>
+                  <label for="gaji-nominal">Nominal Gaji per Bulan (Rp):</label>
+                  <input
+                    type="number"
+                    id="gaji-nominal"
+                    min="0"
+                    placeholder="Contoh: 5000000"
+                  />
+                </div>
+                <button
+                  type="button"
+                  id="catat-gaji-otomatis"
+                  class="btn-secondary"
+                >
+                  <i class="fas fa-hand-holding-usd"></i> Catat Gaji Sekarang
+                </button>
+                <small class="info-text"
+                  >Ini akan mencatat pemasukan gaji untuk bulan ini.</small
+                >
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Skrip JavaScript Kustom -->
+    <script src="script.js"></script>
+  </body>
+</html>
